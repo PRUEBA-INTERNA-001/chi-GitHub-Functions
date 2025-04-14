@@ -33,6 +33,10 @@ on:
         description: "Nombre lógico de la aplicación"
         required: true
         type: string
+      environment:
+        description: "Nombre del entorno GitHub (dev, homo, prod)"
+        required: true
+        type: string
     #secrets:
       #WEBLOGIC_PASSWORD:
         #description: "Password del usuario WebLogic"
@@ -41,6 +45,8 @@ on:
 jobs:
   deploy-dev:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
     steps:
       - name: Descargar artefacto
         uses: actions/download-artifact@v4
@@ -52,3 +58,7 @@ jobs:
         run: |
           echo "Buscando EAR en downloaded-ear/..."
           find downloaded-ear/ -type f -name '*.ear' -exec ls -lh {} \;
+      
+      - name: (Test) Desplegar a WebLogic
+        run: |
+          echo "Desplegando ${inputs.artifacts_name} a ${inputs.server_host}:${inputs.server_port}"
