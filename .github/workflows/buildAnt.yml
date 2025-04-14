@@ -1,0 +1,61 @@
+name: Build (Docker Ant)
+
+on:
+  workflow_call:
+    inputs:
+      java_version:
+        description: 'Versión de Java del proyecto'
+        required: true
+        default: '11'
+        type: string
+      artifacts_pattern:
+        description: 'Directorio o expresión regular que describe qué se desea almacenar como artefacto'
+        required: true
+        default: 'build/ear/*ear'
+        type: string
+    outputs:
+      ear_file_name:
+        description: "Nombre del artefacto compilado"
+        value: ${{ jobs.build.outputs.artifact_name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: openjdk:${{ inputs.java_version }}
+      options: --user root
+
+    outputs:
+      artifact_name: ${{ steps.build.outputs.earName }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Verificar los archivos descargados dentro del contenedor
+        run: |
+          ls -lrt
+
+      - name: Instalar Ant y descargar dependencias
+        run: |
+          apt-get update && apt-get install -y ant wget
+          mkdir -p lib
+          wget -O lib/jakarta.ejb-api.jar \
+            https://repo1.maven.org/maven2/jakarta/ejb/jakarta.ejb-api/4.0.0/jakarta.ejb-api-4.0.0.jar
+
+      - name: Compilar con Ant
+        id: build
+        run: |
+          ant -f build.xml clean build
+          EAR_NAME=$(basename $(find build/ear -name "*.ear" | head -n1))
+          echo "earName=$EAR_NAME" >> $GITHUB_OUTPUT
+          echo "Ruta EAR: $(pwd)/build/ear/$EAR_NAME"  # Verificación
+
+      - name: Subir EAR y clases como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: ear-and-classes-artifact
+          path: |
+                build/ear/*.ear
+                HelloWorldEJB/build/
+          retention-days: 1
