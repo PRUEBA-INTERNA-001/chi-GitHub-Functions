@@ -23,6 +23,8 @@ jobs:
         run: |
           ls -lh ./
           echo "Artefactos disponibles: $(ls -R ./)"
+          echo "ProjectKey: ${{ secrets.SONAR_PROJECT_KEY }}"
+          echo "organization: ${{ secrets.SONAR_ORG }}
 
       - name: Set up JDK
         uses: actions/setup-java@v3
