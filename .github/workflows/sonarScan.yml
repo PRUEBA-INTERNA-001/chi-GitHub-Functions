@@ -19,11 +19,6 @@ jobs:
           name: ear-and-classes-artifact  # Nombre del artefacto subido
           path: .
       
-      - name: Verificar artefactos
-        run: |
-          echo "ProjectKey: ${{ secrets.SONAR_PROJECT_KEY }}"
-          echo "organization: ${{ secrets.SONAR_ORG }}
-
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
