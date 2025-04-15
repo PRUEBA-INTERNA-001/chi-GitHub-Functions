@@ -1,0 +1,42 @@
+name: Create GitHub Release
+
+on:
+  workflow_call:
+    inputs:
+      artifacts_pattern:
+        description: "Ruta del EAR a subir como release"
+        required: true
+        default: "build/ear/*.ear"
+        type: string
+      artifacts_name:
+        description: "Nombre del archivo EAR"
+        required: true
+        default: "HelloWorld.ear"
+        type: string
+      environment:
+        description: "Nombre del entorno (dev, homo, prod)"
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar artefacto
+        uses: actions/download-artifact@v4
+        with:
+          name: ear-and-classes-artifact
+          path: ./
+
+      - name: Crear Release en GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: release-${{ github.run_number }}
+          name: Release ${{ github.run_number }} - ${{ inputs.artifacts_name }}
+          body: |
+            Release generado automaticamente en el flujo del ambiente ${{ inputs.environment }}.
+            Artefacto generado: `${{ inputs.artifacts_name }}`
+            Subido a GitHub Release por pipeline `${{ github.workflow }}`.
+          files: ${{ inputs.artifacts_pattern }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

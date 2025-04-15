@@ -3,11 +3,6 @@ name: Deploy to WebLogic
 on:
   workflow_call:
     inputs:
-      artifacts_pattern:
-        description: 'Directorio o expresión regular que describe qué se desea almacenar como artefacto'
-        required: true
-        default: 'build/ear/*ear'
-        type: string
       artifacts_name:
         description: 'Nombre del Ear'
         required: true
@@ -37,28 +32,41 @@ on:
         description: "Nombre del entorno GitHub (dev, homo, prod)"
         required: true
         type: string
-    #secrets:
-      #WEBLOGIC_PASSWORD:
-        #description: "Password del usuario WebLogic"
-        #required: true
+      release_tag:
+        description: "Tag del release a descargar"
+        required: false
+        type: string
 
 jobs:
-  deploy-dev:
+  deploy:
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment }}
     steps:
-      - name: Descargar artefacto
+      - name: Descargar desde workflow artifact
+        if: ${{ inputs.environment == 'desarrollo' }}
         uses: actions/download-artifact@v4
         with:
           name: ear-and-classes-artifact
-          path: downloaded-ear
+          path: deployment-files
 
-      - name: Verificar artefacto
+      - name: Descargar release con tag
+        if: ${{ inputs.environment != 'desarrollo' }}
+        uses: robinraju/release-downloader@v1.8
+        with:
+          repository: ${{ github.repository }}
+          tag: ${{ inputs.release_tag }}
+          fileName: "*.ear"
+          out-file-path: "deployment-files"
+
+      - name: Verificar archivos
         run: |
-          echo "Buscando EAR en downloaded-ear/..."
-          find downloaded-ear/ -type f -name '*.ear' -exec ls -lh {} \;
-      
+          echo "Contenido de deployment-files/:"
+          ls -lh deployment-files/
+          echo "Archivo EAR encontrado:"
+          find deployment-files/ -type f -name '*.ear' -exec ls -lh {} \;
+
       - name: (Test) Desplegar a WebLogic 
         run: |
-          echo "Desplegando ${{ inputs.artifacts_name }} a ${{ inputs.server_host }}:${{ inputs.server_port }}"
+          EAR_PATH=$(find deployment-files/ -type f -name '*.ear' | head -n1)
+          echo "Desplegando [$EAR_PATH] a ${{ inputs.server_host }}:${{ inputs.server_port }}"
