@@ -59,6 +59,6 @@ jobs:
           echo "Buscando EAR en downloaded-ear/..."
           find downloaded-ear/ -type f -name '*.ear' -exec ls -lh {} \;
       
-      - name: (Test) Desplegar a WebLogic
+      - name: (Test) Desplegar a WebLogic 
         run: |
-          echo "Desplegando ${inputs.artifacts_name} a ${inputs.server_host}:${inputs.server_port}"
+          echo "Desplegando ${{ inputs.artifacts_name }} a ${{ inputs.server_host }}:${{ inputs.server_port }}"
