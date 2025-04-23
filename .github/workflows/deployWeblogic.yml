@@ -66,7 +66,13 @@ jobs:
           echo "Archivo EAR encontrado:"
           find deployment-files/ -type f -name '*.ear' -exec ls -lh {} \;
 
+      - name: Mostrar release tag
+        run: 'echo "Release: ${{ github.ref_name }}"'
+
       - name: (Test) Desplegar a WebLogic 
         run: |
           EAR_PATH=$(find deployment-files/ -type f -name '*.ear' | head -n1)
           echo "Desplegando [$EAR_PATH] a ${{ inputs.server_host }}:${{ inputs.server_port }}"
+
+      - name: Notificar despliegue exitoso
+        run: 'echo "::notice title=Release Desplegado::Versión: ${{ github.ref_name }}"'
