@@ -75,4 +75,4 @@ jobs:
           echo "Desplegando [$EAR_PATH] a ${{ inputs.server_host }}:${{ inputs.server_port }}"
 
       - name: Notificar despliegue exitoso
-        run: 'echo "::notice title=Release Desplegado::Versión: ${{ inputs.release_tag }}"'
+        run: 'echo "::notice title=Release Desplegado::Versión: ${{ inputs.release_tag }}%0AAmbiente: ${{ inputs.environment }}"'
