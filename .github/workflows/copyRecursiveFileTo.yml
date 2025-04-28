@@ -49,14 +49,14 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Mostrar valor de MASK_INCLUDE_FILES
-      run: echo "MASK_INCLUDE_FILES = ${{ inputs.mask_include_files }}"
+      run: echo "MASK_INCLUDE_FILES = ${{ vars.MASK_INCLUDE_FILES }}"
 
     - name: Subir archivos como artefacto
       if: ${{ inputs.environment == 'desarrollo' }}
       uses: actions/upload-artifact@v4
       with:
         name: artifacts
-        path: ${{ inputs.mask_include_files }}
+        path: ${{ vars.MASK_INCLUDE_FILES }}
         retention-days: 1
 
     - name: Mostrar lista de servidores
