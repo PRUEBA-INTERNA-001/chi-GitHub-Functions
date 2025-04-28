@@ -2,6 +2,12 @@ name: SonarCloud Quality Gate
 
 on:
   workflow_call:
+    inputs:
+      deploy_platform:
+        description: "Plataforma de despliegue"
+        required: true
+        default: "linux"
+        type: string
 
 jobs:
   sonar-quality-gate:
@@ -14,12 +20,14 @@ jobs:
           fetch-depth: 0  # Necesario para análisis completo, incluye histórico de Git
       
       - name: Descargar artefacto
+        if: ${{ inputs.deploy_platform == 'wls' }}
         uses: actions/download-artifact@v4
         with:
-          name: ear-and-classes-artifact  # Nombre del artefacto subido
+          name: artifacts  # Nombre del artefacto subido
           path: .
       
       - name: Set up JDK
+        if: ${{ inputs.deploy_platform == 'wls' }}
         uses: actions/setup-java@v3
         with:
           java-version: '11'  # Ajusta si usas otra versión
