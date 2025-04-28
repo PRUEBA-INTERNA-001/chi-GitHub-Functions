@@ -23,15 +23,26 @@ jobs:
       if: ${{ inputs.environment == 'desarrollo' }}
       uses: actions/checkout@v3
 
+    - name: Verificar y establecer rutas de artefactos
+      id: set-paths
+      run: |
+        if [ -f artifact-paths.txt ]; then
+          echo "paths<<EOF" >> $GITHUB_OUTPUT
+          cat artifact-paths.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        else
+          echo "paths=**/*" >> $GITHUB_OUTPUT
+        fi
+
     - name: Mostrar valor de MASK_INCLUDE_FILES
-      run: echo "MASK_INCLUDE_FILES = ${{ vars.MASK_INCLUDE_FILES }}"
+      run: echo "MASK_INCLUDE_FILES = ${{ steps.set-paths.outputs.paths }}"
 
     - name: Subir archivos como artefacto
       if: ${{ inputs.environment == 'desarrollo' }}
       uses: actions/upload-artifact@v4
       with:
         name: artifacts
-        path: ${{ vars.MASK_INCLUDE_FILES }}
+        path: ${{ steps.set-paths.outputs.paths }}
         retention-days: 1
 
     - name: Mostrar lista de servidores
