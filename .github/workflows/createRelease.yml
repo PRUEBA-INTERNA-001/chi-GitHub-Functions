@@ -17,6 +17,10 @@ on:
         description: "Nombre del entorno (dev, homo, prod)"
         required: false
         type: string
+      source_workflow:
+        description: "Nombre del workflow que generó el artifact (ej: weblogic-ci.yml)"
+        required: true
+        type: string
 
 jobs:
   release:
@@ -25,7 +29,8 @@ jobs:
       - name: Descargar artefacto
         uses: actions/download-artifact@v4
         with:
-          name: artifacts
+          workflow: ${{ inputs.source_workflow }}  # Nombre del workflow que generó el artifact
+          name: artifacts      # Nombre del artifact
           path: ./
 
       - name: Crear Release en GitHub
@@ -34,9 +39,10 @@ jobs:
           tag_name: release-${{ github.run_number }}
           name: Release ${{ github.run_number }}
           body: |
-            Release generado automaticamente en el flujo del ambiente ${{ inputs.environment }}.
-            Artefacto generado: `${{ inputs.artifacts_name }}`
+            Release generado automáticamente en el ambiente ${{ inputs.environment }}.
+            Artefacto: `${{ inputs.artifacts_name }}`
             Subido a GitHub Release por pipeline `${{ github.workflow }}`.
+            Workflow origen: `${{ inputs.source_workflow }}`.
           files: ${{ inputs.artifacts_pattern }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -48,12 +48,18 @@ jobs:
       if: ${{ inputs.environment == 'desarrollo' }}
       uses: actions/checkout@v3
 
+    - name: Parsear y normalizar rutas
+      id: normalize_paths
+      run: |
+        # Convertir "path1 path2" en "path1\npath2" para el parámetro 'path'
+        echo "PATHS=$(echo '${{ inputs.mask_include_files }}' | sed 's/ /\n/g')" >> $GITHUB_OUTPUT
+
     - name: Subir archivos como artefacto
       if: ${{ inputs.environment == 'desarrollo' }}
       uses: actions/upload-artifact@v4
       with:
         name: artifacts
-        path: ${{ inputs.mask_include_files }}
+        path: ${{ steps.normalize_paths.outputs.PATHS }}
         retention-days: 1
 
     - name: Mostrar lista de servidores
@@ -70,6 +76,9 @@ jobs:
         tag: ${{ inputs.release_tag }}
         fileName: ${{ inputs.mask_include_files }}
         out-file-path: "deployment-files"
+    
+    - name: Copia a path destino
+      run: 'echo "Copia a: ${{ inputs.path_destino }}"'
 
     #- name: Instalar Groovy
     #  run: |
