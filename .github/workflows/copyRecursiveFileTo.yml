@@ -1,0 +1,82 @@
+name: Create GitHub Release
+
+on:
+  workflow_call:
+    inputs:
+        path_destino:
+          description: 'Path destino donde se copiaran los archivos'
+          required: true
+          default: '/tmp'
+          type: string
+        environment:
+          description: "Nombre del entorno GitHub (dev, homo, prod)"
+          required: true
+          type: string
+        mask_include_files:
+          description: "Filtro de carpetas o archivos a copiar a destino"
+          required: false
+          default: '**/*'
+          type: string
+        pre_script_type:
+          description: "Tipo de script a utilizar sh o bat"
+          required: false
+          default: 'sh'
+          type: string
+        pre_script_path:
+          description: "Path del script a utilizar sh o bat"
+          required: false
+          default: 'scripts/preScript.sh'
+          type: string
+        servidores:
+          description: "Servidores donde se copiaran los archivos"
+          required: false
+          default: ''
+          type: string
+        release_tag:
+          description: "Tag del release a descargar"
+          required: false
+          type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+    
+    steps:
+    - name: Checkout
+      if: ${{ inputs.environment == 'desarrollo' }}
+      uses: actions/checkout@v3
+
+    - name: Subir archivos como artefacto
+      if: ${{ inputs.environment == 'desarrollo' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts
+        path: ${{ inputs.mask_include_files }}
+        retention-days: 1
+
+    - name: Mostrar lista de servidores
+      run: 'echo "servidores: ${{ inputs.servidores }}"'
+
+    - name: Mostrar path
+      run: 'echo "Destino: ${{ inputs.path_destino }}"'
+      
+    - name: Descargar release con tag
+      if: ${{ inputs.environment != 'desarrollo' }}
+      uses: robinraju/release-downloader@v1.8
+      with:
+        repository: ${{ github.repository }}
+        tag: ${{ inputs.release_tag }}
+        fileName: ${{ inputs.mask_include_files }}
+        out-file-path: "deployment-files"
+
+    #- name: Instalar Groovy
+    #  run: |
+    #    sudo apt-get update
+    #    sudo apt-get install -y groovy
+
+    #- name: Ejecutar script Groovy que realiza la copia
+    #  run: |
+    #    echo "println 'Hola desde Groovy'" > script.groovy
+    #    groovy script.groovy
