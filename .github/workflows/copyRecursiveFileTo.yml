@@ -48,6 +48,9 @@ jobs:
       if: ${{ inputs.environment == 'desarrollo' }}
       uses: actions/checkout@v3
 
+    - name: Mostrar valor de MASK_INCLUDE_FILES
+      run: echo "MASK_INCLUDE_FILES = ${{ inputs.mask_include_files }}"
+
     - name: Subir archivos como artefacto
       if: ${{ inputs.environment == 'desarrollo' }}
       uses: actions/upload-artifact@v4
