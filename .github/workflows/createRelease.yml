@@ -35,7 +35,7 @@ jobs:
           tag_name: release-${{ github.run_number }}
           name: Release ${{ github.run_number }}
           body: |
-            Release generado automáticamente en el ambiente ${{ inputs.environment }}.
+            Release generado automáticamente por un PR hacia la rama main.
             Artefacto: `${{ inputs.artifacts_name }}`
             Subido a GitHub Release por pipeline `${{ github.workflow }}`.
           files: ${{ inputs.artifacts_pattern }}
