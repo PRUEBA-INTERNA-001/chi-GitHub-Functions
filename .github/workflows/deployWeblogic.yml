@@ -43,12 +43,6 @@ jobs:
     environment:
       name: ${{ inputs.environment }}
     steps:
-      - name: Descargar desde workflow artifact
-        if: ${{ inputs.environment == 'desarrollo' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: ear-and-classes-artifact
-          path: deployment-files
 
       - name: Descargar release con tag
         if: ${{ inputs.environment != 'desarrollo' }}
@@ -58,6 +52,13 @@ jobs:
           tag: ${{ inputs.release_tag }}
           fileName: "*.ear"
           out-file-path: "deployment-files"
+
+      - name: Descargar artifact desde workflow
+        if: ${{ inputs.environment == 'desarrollo' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ear-and-classes-artifact
+          path: deployment-files
 
       - name: Verificar archivos
         run: |

@@ -19,11 +19,8 @@ jobs:
       name: ${{ inputs.environment }}
     
     steps:
-    - name: Checkout
-      if: ${{ inputs.environment == 'desarrollo' }}
-      uses: actions/checkout@v3
-
-    - name: Verificar y establecer rutas de artefactos
+    
+    - name: Verificar lista de archivos a incluir y excluir
       id: set-paths
       run: |
         if [ -f artifact-paths.txt ]; then
@@ -37,20 +34,6 @@ jobs:
     - name: Mostrar valor de MASK_INCLUDE_FILES
       run: echo "MASK_INCLUDE_FILES = ${{ steps.set-paths.outputs.paths }}"
 
-    - name: Subir archivos como artefacto
-      if: ${{ inputs.environment == 'desarrollo' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: artifacts
-        path: ${{ steps.set-paths.outputs.paths }}
-        retention-days: 1
-
-    - name: Mostrar lista de servidores
-      run: 'echo "servidores: ${{ vars.SERVIDORES }}"'
-
-    - name: Mostrar path
-      run: 'echo "Destino: ${{ vars.PATH_DESTINO }}"'
-      
     - name: Descargar release con tag
       if: ${{ inputs.environment != 'desarrollo' }}
       uses: robinraju/release-downloader@v1.8
@@ -59,16 +42,24 @@ jobs:
         tag: ${{ inputs.release_tag }}
         fileName: ${{ vars.MASK_INCLUDE_FILES }}
         out-file-path: "deployment-files"
-    
+
+    - name: Checkout
+      if: ${{ inputs.environment == 'desarrollo' }}
+      uses: actions/checkout@v3
+
+    - name: Mostrar lista de servidores
+      run: 'echo "servidores: ${{ vars.SERVIDORES }}"'
+
+    - name: Mostrar path
+      run: 'echo "Destino: ${{ vars.PATH_DESTINO }}"'
+         
     - name: Copia a path destino
       run: 'echo "Copia a: ${{ vars.PATH_DESTINO }}"'
 
-    #- name: Instalar Groovy
-    #  run: |
-    #    sudo apt-get update
-    #    sudo apt-get install -y groovy
-
-    #- name: Ejecutar script Groovy que realiza la copia
-    #  run: |
-    #    echo "println 'Hola desde Groovy'" > script.groovy
-    #    groovy script.groovy
+    - name: Subir archivos como artefacto
+      if: ${{ inputs.environment == 'desarrollo' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts
+        path: ${{ steps.set-paths.outputs.paths }}
+        retention-days: 1
