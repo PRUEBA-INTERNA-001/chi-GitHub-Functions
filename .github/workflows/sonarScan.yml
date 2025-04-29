@@ -10,7 +10,7 @@ on:
         type: string
 
 jobs:
-  sonar-quality-gate:
+  sonar-scan:
     runs-on: ubuntu-latest
 
     steps:
