@@ -46,6 +46,13 @@ jobs:
     - name: Checkout
       if: ${{ inputs.environment == 'desarrollo' }}
       uses: actions/checkout@v3
+      with:
+        sparse-checkout: |
+          /*
+          !README.md
+          !sonar-project.properties
+          !/.github/
+        sparse-checkout-cone-mode: false
 
     - name: Mostrar lista de servidores
       run: 'echo "servidores: ${{ vars.SERVIDORES }}"'
