@@ -43,6 +43,11 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Wait for analysis processing
+        run: |
+          ls -lrat .scannerwork/
+          sleep 30  # Espera para asegurar que el análisis esté completo
       
       - name: Check if project exists in SonarCloud (skip Quality Gate if first run)
         id: check_sonar_project
@@ -59,7 +64,7 @@ jobs:
               echo "Proyecto ya existe en SonarCloud: verificando Quality Gate."
               echo "qualitygate_needed=true" >> $GITHUB_OUTPUT
             fi
-        
+      
       - name: Wait for Quality Gate
         if: steps.check_sonar_project.outputs.qualitygate_needed == 'true'
         uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
