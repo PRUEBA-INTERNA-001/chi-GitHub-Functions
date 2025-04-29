@@ -34,7 +34,6 @@ jobs:
       - name: Descargar artefacto
         uses: actions/download-artifact@v4
         with:
-          workflow: ${{ inputs.source_workflow }}  # Nombre del workflow que generó el artifact
           name: artifacts      # Nombre del artifact
           run-id: ${{ steps.get_run_id.outputs.run-id }}
           path: ./
