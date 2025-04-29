@@ -17,10 +17,6 @@ on:
         description: "Nombre del entorno (dev, homo, prod)"
         required: false
         type: string
-      source_workflow:
-        description: "Nombre del workflow que generó el artifact (ej: weblogic-ci.yml)"
-        required: true
-        type: string
 
 jobs:
   release:
